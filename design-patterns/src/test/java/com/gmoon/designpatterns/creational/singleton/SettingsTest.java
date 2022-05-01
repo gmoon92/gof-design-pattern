@@ -2,6 +2,7 @@ package com.gmoon.designpatterns.creational.singleton;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.lang.reflect.Constructor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,5 +27,17 @@ class SettingsTest {
 				assertThat(settings).isEqualTo(Settings.getInstance());
 			});
 		}
+	}
+
+	@Test
+	@DisplayName("싱글톤 구조 깨트리기 - 리플렉션 사용")
+	void testBrokenSingletonPattern_Reflection() throws Exception {
+		// when
+		Constructor<Settings> constructor = Settings.class.getDeclaredConstructor();
+		constructor.setAccessible(true);
+		Settings settings = constructor.newInstance();
+
+		// then
+		assertThat(settings).isNotEqualTo(Settings.getInstance());
 	}
 }
