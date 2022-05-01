@@ -1,12 +1,19 @@
 package com.gmoon.designpatterns.creational.singleton;
 
 public class Settings {
-	private final static Settings INSTANCE = new Settings();
+	private static volatile Settings instance;
 
 	private Settings() {
 	}
 
 	public static Settings getInstance() {
-		return INSTANCE;
+		if (instance == null) {
+			synchronized (Settings.class) {
+				if (instance == null) {
+					instance = new Settings();
+				}
+			}
+		}
+		return instance;
 	}
 }
