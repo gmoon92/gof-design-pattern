@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Ship {
+public abstract class Ship {
 	private String name;
 	private String color;
 	private String logo;
