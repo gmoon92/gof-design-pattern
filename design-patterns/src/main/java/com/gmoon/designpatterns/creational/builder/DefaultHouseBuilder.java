@@ -4,6 +4,9 @@ public class DefaultHouseBuilder implements HouseBuilder{
 	private int windows;
 	private int doors;
 	private int rooms;
+	private Boolean hasGarage;
+	private Boolean hasSwimPool;
+	private Boolean hasStatues;
 
 	@Override
 	public HouseBuilder windows(int windows) {
@@ -25,11 +28,14 @@ public class DefaultHouseBuilder implements HouseBuilder{
 
 	@Override
 	public HouseBuilder houseOption(Boolean hasGarage, Boolean hasSwimPool, Boolean hasStatues) {
-		throw new IllegalArgumentException("Default House 는 옵션을 설정할 수 없다.");
+		this.hasGarage = hasGarage;
+		this.hasSwimPool = hasSwimPool;
+		this.hasStatues = hasStatues;
+		return this;
 	}
 
 	@Override
 	public House getHouse() {
-		return new House(windows, doors, rooms, false, false, false);
+		return new House(windows, doors, rooms, hasGarage, hasSwimPool, hasStatues);
 	}
 }
