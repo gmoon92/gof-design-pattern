@@ -10,5 +10,5 @@ public interface HouseBuilder {
 
 	HouseBuilder houseOption(Boolean hasGarage, Boolean hasSwimPool, Boolean hasStatues);
 
-	House getHouse(); // builder();
+	House getHouse(); // build();
 }
