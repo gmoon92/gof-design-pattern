@@ -5,42 +5,48 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Application {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws CloneNotSupportedException {
 		Notice notice = new Notice();
 		notice.setTitle("제목");
 		notice.setContent("내용");
 		notice.setEnabled(true);
+		notice.setComments(new ArrayList<>(Arrays.asList("댓글1", "댓글2")));
 
-		List<String> comments = new ArrayList<>(Arrays.asList("댓글1", "댓글2"));
-		notice.setComments(comments);
+		Notice clone = (Notice)notice.clone();
 
-		Notice clone = new Notice();
-		clone.setTitle(notice.getTitle());
-		clone.setContent(notice.getContent());
-		clone.setEnabled(notice.isEnabled());
-		clone.setComments(notice.getComments());
+		assertCopiedObject(notice, clone);
+		assertShallowCopiedObject(notice, clone);
+	}
 
-		// clone
-		assert notice != clone;
-		assert notice.equals(clone);
+	private static void assertCopiedObject(Object origin, Object clone) {
+		assert origin != clone;
+		assert origin.equals(clone);
+		assert origin.getClass() == origin.getClass();
+	}
 
-		// shallow copy
-		assert notice.getTitle() == clone.getTitle();
-		assert notice.getContent() == clone.getContent();
-		assert notice.isEnabled() == clone.isEnabled();
+	// shallow copy 참조 타입 검증
+	private static void assertShallowCopiedObject(Notice notice, Notice clone) {
+		assert isEqualsSystemHashCode(notice.getTitle(), clone.getTitle());
+		assert isEqualsSystemHashCode(notice.getContent(), clone.getContent());
+		assert isEqualsSystemHashCode(notice.isEnabled(), clone.isEnabled());
 
-		// shallow copy 참조 복사 검증
 		notice.setTitle("제목 수정");
 		notice.setContent("내용 수정");
 		notice.setEnabled(false);
-		assert notice.getTitle() != clone.getTitle();
-		assert notice.getContent() != clone.getContent();
-		assert notice.isEnabled() != clone.isEnabled();
+		assert !isEqualsSystemHashCode(notice.getTitle(), clone.getTitle());
+		assert !isEqualsSystemHashCode(notice.getContent(), clone.getContent());
+		assert !isEqualsSystemHashCode(notice.isEnabled(), clone.isEnabled());
 
+		// 참조 타입 주소 값을 복사하기 때문에 원본 객체와 복사된 객체간 공유한다.
+		// 복사된 참조 타입 데이터를 수정시 원본 Object 데이터도 변경 위험이 따른다.
 		List<String> noticeComments = notice.getComments();
 		String newComment = "신규 댓글";
 		noticeComments.add(newComment);
-		assert notice.getComments() == clone.getComments();
+		assert isEqualsSystemHashCode(notice.getComments(), clone.getComments());
 		assert clone.getComments().contains(newComment);
+	}
+
+	private static boolean isEqualsSystemHashCode(Object o1, Object o2) {
+		return System.identityHashCode(o1) == System.identityHashCode(o2);
 	}
 }
