@@ -5,17 +5,27 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Application {
-	public static void main(String[] args) throws CloneNotSupportedException {
+	public static void main(String[] args) {
 		Notice notice = new Notice();
 		notice.setTitle("제목");
 		notice.setContent("내용");
 		notice.setEnabled(true);
 		notice.setComments(new ArrayList<>(Arrays.asList("댓글1", "댓글2")));
 
+
+		// shallow copied
 		Notice clone = (Notice)notice.clone();
+		assert isEqualsSystemHashCode(notice.getTitle(), clone.getTitle());
+		assert isEqualsSystemHashCode(notice.getContent(), clone.getContent());
+		assert isEqualsSystemHashCode(notice.isEnabled(), clone.isEnabled());
 
 		assertCopiedObject(notice, clone);
 		assertShallowCopiedObject(notice, clone);
+
+		// deep copied
+		Notice deepCopied = notice.deepCopy();
+		assertCopiedObject(notice, deepCopied);
+		assertDeepCopiedObject(notice, deepCopied);
 	}
 
 	private static void assertCopiedObject(Object origin, Object clone) {
@@ -24,12 +34,24 @@ public class Application {
 		assert origin.getClass() == origin.getClass();
 	}
 
-	// shallow copy 참조 타입 검증
-	private static void assertShallowCopiedObject(Notice notice, Notice clone) {
+	private static void assertDeepCopiedObject(Notice notice, Notice clone) {
+		notice.setTitle("제목 수정");
+		notice.setContent("내용 수정");
+		notice.setEnabled(false);
 		assert isEqualsSystemHashCode(notice.getTitle(), clone.getTitle());
 		assert isEqualsSystemHashCode(notice.getContent(), clone.getContent());
 		assert isEqualsSystemHashCode(notice.isEnabled(), clone.isEnabled());
 
+		List<String> noticeComments = notice.getComments();
+		String newComment = "신규 댓글";
+		noticeComments.add(newComment);
+
+		assert !isEqualsSystemHashCode(notice.getComments(), clone.getComments());
+		assert !clone.getComments().contains(newComment);
+	}
+
+	// shallow copy 참조 타입 검증
+	private static void assertShallowCopiedObject(Notice notice, Notice clone) {
 		notice.setTitle("제목 수정");
 		notice.setContent("내용 수정");
 		notice.setEnabled(false);
