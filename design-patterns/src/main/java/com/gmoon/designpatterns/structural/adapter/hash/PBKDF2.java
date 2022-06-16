@@ -7,7 +7,13 @@ import java.security.SecureRandom;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PBKDF2 {
+	public static final PBKDF2 INSTANCE = new PBKDF2();
+
 	private static final SecretKeyFactory SECRET_KEY_FACTORY;
 
 	static {
@@ -34,7 +40,7 @@ public class PBKDF2 {
 	 * @param   password    the password to hash
 	 * @return a salted PBKDF2 hash of the password
 	 */
-	public static String encode(String password) {
+	public String encode(String password) {
 		// Generate a random salt
 		SecureRandom random = new SecureRandom();
 		byte[] salt = new byte[SALT_BYTE_SIZE];
@@ -52,7 +58,7 @@ public class PBKDF2 {
 	 * @param   array       the byte array to convert
 	 * @return a length*2 character string encoding the byte array
 	 */
-	private static String toHex(byte[] array) {
+	private String toHex(byte[] array) {
 		BigInteger bi = new BigInteger(1, array);
 		String hex = bi.toString(16);
 		int paddingLength = (array.length * 2) - hex.length();
@@ -69,7 +75,7 @@ public class PBKDF2 {
 	 * @param   encodedPassword    the hash of the valid password
 	 * @return true if the password is correct, false if not
 	 */
-	public static boolean validatePassword(String rawPassword, String encodedPassword) {
+	public boolean validatePassword(String rawPassword, String encodedPassword) {
 		// Decode the hash into its parameters
 		String[] params = encodedPassword.split(":");
 		int iterations = Integer.parseInt(params[INDEX_OF_ITERATION]);
@@ -88,7 +94,7 @@ public class PBKDF2 {
 	 * @param   hex         the hex string
 	 * @return the hex string decoded into a byte array
 	 */
-	private static byte[] fromHex(String hex) {
+	private byte[] fromHex(String hex) {
 		byte[] binary = new byte[hex.length() / 2];
 		for (int i = 0; i < binary.length; i++) {
 			binary[i] = (byte)Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
@@ -105,7 +111,7 @@ public class PBKDF2 {
 	 * @param   b       the second byte array
 	 * @return true if both byte arrays are the same, false if not
 	 */
-	private static boolean slowEquals(byte[] a, byte[] b) {
+	private boolean slowEquals(byte[] a, byte[] b) {
 		int diff = a.length ^ b.length;
 		for (int i = 0; i < a.length && i < b.length; i++) {
 			diff |= a[i] ^ b[i];
@@ -122,7 +128,7 @@ public class PBKDF2 {
 	 * @param   bytes       the length of the hash to compute in bytes
 	 * @return the PBDKF2 hash of the password
 	 */
-	private static byte[] encode(char[] password, byte[] salt, int iterations, int bytes) {
+	private byte[] encode(char[] password, byte[] salt, int iterations, int bytes) {
 		PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, bytes * 8);
 		try {
 			return SECRET_KEY_FACTORY.generateSecret(spec).getEncoded();
@@ -137,25 +143,26 @@ public class PBKDF2 {
 	 * @param   args        ignored
 	 */
 	public static void main(String[] args) {
+		PBKDF2 pbkdf2 = PBKDF2.INSTANCE;
 		String password = "123";
 
 		for (int i = 0; i < 10; i++) {
-			System.out.println(PBKDF2.encode(password));
+			System.out.println(pbkdf2.encode(password));
 		}
 
 		System.out.println("Running tests...");
 		for (int i = 0; i < 10; i++) {
-			String hash = encode(password);
-			String secondHash = encode(password);
+			String hash = pbkdf2.encode(password);
+			String secondHash = pbkdf2.encode(password);
 
 			// Failure case1: Two hashes are equal!
 			assert !hash.equals(secondHash);
 
 			// Failure case2: Wrong password accepted!
-			assert !validatePassword("1234", hash);
+			assert !pbkdf2.validatePassword("1234", hash);
 
 			// Failure case3: Good password not accepted!
-			assert validatePassword(password, hash);
+			assert pbkdf2.validatePassword(password, hash);
 		}
 
 		System.out.println("Done!");
