@@ -1,5 +1,6 @@
 package com.gmoon.designpatterns.structural.composite;
 
+import com.gmoon.designpatterns.structural.composite.order.GiftBox;
 import com.gmoon.designpatterns.structural.composite.order.Item;
 import com.gmoon.designpatterns.structural.composite.order.Basket;
 
@@ -15,18 +16,12 @@ public class Application {
     basket.add(pencil);
     basket.add(eraser);
 
-    Application client = new Application();
-    System.out.println(client.getPrice(note));
-    System.out.println(client.getPrice(basket));
-  }
+    int vat = 100;
+    GiftBox giftBox = new GiftBox(vat);
+    giftBox.add(Item.create("birthday card", 100_000));
+    basket.add(giftBox);
 
-  private int getPrice(Item note) {
-    return note.getPrice();
-  }
-
-  private int getPrice(Basket basket) {
-    return basket.getItems().stream()
-      .mapToInt(Item::getPrice)
-      .sum();
+    System.out.println(note.getPrice());
+    System.out.println(basket.getPrice());
   }
 }

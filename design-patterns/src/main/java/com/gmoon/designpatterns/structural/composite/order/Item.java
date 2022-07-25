@@ -3,7 +3,7 @@ package com.gmoon.designpatterns.structural.composite.order;
 import lombok.Getter;
 
 @Getter
-public class Item {
+public class Item implements Order {
   private String name;
   private int price;
 
